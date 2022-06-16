@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:8-apache
 
 RUN apt update
 
@@ -65,6 +65,15 @@ RUN systemctl enable ssh
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 # ----------------------------------------------------------------
+# ImageMagick
+# Ref: https://webapplicationconsultant.com/docker/how-to-install-imagick-in-php-docker/
+
+RUN apt-get install -y imagemagick
+RUN apt-get install -y libmagickwand-dev --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN printf "\n" | pecl install imagick
+RUN docker-php-ext-enable imagick
+
+# ----------------------------------------------------------------
 # php memory limit
 
 RUN cd /usr/local/etc/php/conf.d/ && \
@@ -85,15 +94,6 @@ RUN cat /tmp/apache2-conf-append.txt >> /etc/apache2/apache2.conf
 RUN mkdir -p /tmp/session
 RUN chmod 777 /tmp/session
 RUN echo "session.save_path=\"/tmp/session\"" >> /usr/local/etc/php/php.ini
-
-# ----------------------------------------------------------------
-# ImageMagick
-# Ref: https://webapplicationconsultant.com/docker/how-to-install-imagick-in-php-docker/
-
-RUN apt-get install -y imagemagick
-RUN apt-get install -y libmagickwand-dev --no-install-recommends && rm -rf /var/lib/apt/lists/*
-RUN printf "\n" | pecl install imagick
-RUN docker-php-ext-enable imagick
 
 # ----------------------------------------------------------------
 # 轉移設定
